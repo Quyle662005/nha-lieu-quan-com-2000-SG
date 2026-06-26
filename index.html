@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Xuất Kho - Quán Cơm</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1923;
+      --surface:  #1a2636;
+      --card:     #21303f;
+      --border:   #2e4057;
+      --accent:   #f5a623;
+      --accent2:  #e8821a;
+      --text:     #e8edf2;
+      --muted:    #7a93aa;
+      --danger:   #e55353;
+      --success:  #3dba72;
+      --radius:   12px;
+      --font:     'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 40px;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, #1a2636 0%, #0f1923 100%);
+      border-bottom: 2px solid var(--accent);
+      padding: 18px 20px 14px;
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .header-icon { font-size: 28px; }
+    .header-title { font-size: 19px; font-weight: 700; color: var(--accent); letter-spacing: 0.3px; }
+    .header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ===== MAIN CONTAINER ===== */
+    .container { max-width: 560px; margin: 0 auto; padding: 20px 16px; }
+
+    /* ===== SECTION LABEL ===== */
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+      color: var(--accent); text-transform: uppercase;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    /* ===== FORM CONTROLS ===== */
+    label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--muted); margin-bottom: 5px; letter-spacing: 0.4px;
+    }
+    input, select, textarea {
+      width: 100%; padding: 11px 13px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 15px;
+      font-family: var(--font); outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a93aa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 13px center;
+      padding-right: 36px; cursor: pointer;
+    }
+
+    /* ===== PRODUCT ITEM ===== */
+    .product-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .product-item .item-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .item-badge {
+      font-size: 11px; font-weight: 700; color: var(--accent);
+      background: rgba(245,166,35,0.12);
+      border: 1px solid rgba(245,166,35,0.3);
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .btn-remove {
+      background: rgba(229,83,83,0.12); border: 1px solid rgba(229,83,83,0.3);
+      color: var(--danger); border-radius: 6px;
+      width: 28px; height: 28px; font-size: 16px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      width: 100%; padding: 13px;
+      border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: var(--font);
+      transition: all 0.15s; letter-spacing: 0.3px;
+    }
+    .btn-add {
+      background: transparent;
+      border: 1.5px dashed var(--border);
+      color: var(--muted); margin-bottom: 16px;
+    }
+    .btn-add:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-send {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #0f1923;
+      box-shadow: 0 4px 16px rgba(245,166,35,0.3);
+      font-size: 16px; padding: 15px;
+    }
+    .btn-send:active { transform: scale(0.98); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ===== PREVIEW BOX ===== */
+    .preview-box {
+      display: none;
+      background: #0a1520;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px; padding: 12px;
+      font-size: 13px; line-height: 1.6;
+      color: #adc8e0; font-family: 'Courier New', monospace;
+      white-space: pre-wrap; word-break: break-all;
+      margin-bottom: 12px;
+    }
+    .preview-box.show { display: block; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--success); color: #fff;
+      padding: 12px 22px; border-radius: 30px;
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease; z-index: 100;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.error { background: var(--danger); }
+
+    /* ===== DIVIDER ===== */
+    .divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+    /* ===== ZALO LINK ===== */
+    #zalo-link { display: none; }
+
+    .info-box {
+      background: rgba(245,166,35,0.07);
+      border: 1px solid rgba(245,166,35,0.2);
+      border-radius: 8px; padding: 11px 13px;
+      font-size: 12px; color: var(--muted); line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .info-box b { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-icon">📦</div>
+  <div>
+    <div class="header-title">PHIẾU XUẤT KHO</div>
+    <div class="header-sub">Quán Cơm · Hệ thống quản lý kho tự động</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- NGƯỜI LẤY -->
+  <div class="section-label">Thông tin người lấy</div>
+  <div class="card">
+    <label for="nguoi-lay">👤 Tên người lấy hàng</label>
+    <input type="text" id="nguoi-lay" placeholder="VD: Chị Lan, Anh Minh..." autocomplete="name" />
+  </div>
+
+  <!-- DANH SÁCH SẢN PHẨM -->
+  <div class="section-label">Danh sách hàng cần lấy</div>
+  <div id="product-list">
+    <!-- Sản phẩm được tạo bởi JS -->
+  </div>
+
+  <button class="btn btn-add" onclick="addProduct()">＋ Thêm sản phẩm</button>
+
+  <!-- PREVIEW -->
+  <div class="section-label">Xem trước tin nhắn</div>
+  <div class="preview-box" id="preview-box"></div>
+
+  <div class="info-box">
+    <b>Cách dùng:</b> Nhấn "Gửi vào Zalo" → tin nhắn tự copy → Ứng dụng Zalo mở ra → Dán vào nhóm <b>Kho Quán Cơm</b> (Ctrl+V hoặc giữ ngón tay để dán).
+  </div>
+
+  <!-- NÚT GỬI -->
+  <button class="btn btn-send" id="btn-send" onclick="sendToZalo()">
+    🚀 Gửi vào Zalo
+  </button>
+
+  <!-- Link kích hoạt Zalo (ẩn) -->
+  <a id="zalo-link" href="#"></a>
+
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CẤU HÌNH - thay đổi danh sách sản phẩm tại đây
+// ============================================================
+const PRODUCTS = [
+  "Hạt nêm", "Đường", "Muối", "Nước mắm", "Dầu ăn",
+  "Bột ngọt", "Tương ớt", "Tương cà", "Giấm", "Nước tương",
+  "Hành tây", "Tỏi", "Gừng", "Ớt khô", "Tiêu xay",
+  "Gạo", "Bún khô", "Mì gói", "Miến", "Bánh phở",
+  "Lon nước ngọt", "Nước suối", "Bia", "Lon bia",
+  "Khăn giấy", "Tăm", "Hộp xốp", "Túi nilon", "Bao tay",
+  "-- Khác (tự nhập) --"
+];
+
+const UNITS = ["kg", "g", "lít", "ml", "lon", "chai", "hộp", "túi", "gói", "cái", "bịch", "thùng"];
+
+let productCount = 0;
+
+// ============================================================
+// THÊM SẢN PHẨM MỚI
+// ============================================================
+function addProduct() {
+  productCount++;
+  const id = productCount;
+  const list = document.getElementById('product-list');
+
+  const item = document.createElement('div');
+  item.className = 'product-item';
+  item.id = `product-${id}`;
+
+  // Tạo options cho dropdown sản phẩm
+  const productOptions = PRODUCTS.map(p =>
+    `<option value="${p}">${p}</option>`
+  ).join('');
+
+  // Tạo options cho đơn vị
+  const unitOptions = UNITS.map(u =>
+    `<option value="${u}">${u}</option>`
+  ).join('');
+
+  item.innerHTML = `
+    <div class="item-header">
+      <span class="item-badge">Sản phẩm #${id}</span>
+      <button class="btn-remove" onclick="removeProduct(${id})" title="Xóa">×</button>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <label>🏷️ Tên sản phẩm</label>
+      <select id="sp-select-${id}" onchange="toggleCustomInput(${id})">
+        <option value="">-- Chọn sản phẩm --</option>
+        ${productOptions}
+      </select>
+    </div>
+
+    <!-- Ô nhập tự do (ẩn mặc định) -->
+    <div id="sp-custom-wrap-${id}" style="display:none; margin-bottom:10px">
+      <label>✏️ Tên sản phẩm khác</label>
+      <input type="text" id="sp-custom-${id}" placeholder="Nhập tên sản phẩm..." />
+    </div>
+
+    <div class="row-2">
+      <div>
+        <label>⚖️ Số lượng</label>
+        <input type="number" id="sp-qty-${id}" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      </div>
+      <div>
+        <label>📐 Đơn vị</label>
+        <select id="sp-unit-${id}">${unitOptions}</select>
+      </div>
+    </div>
+  `;
+
+  list.appendChild(item);
+
+  // Scroll đến item mới
+  setTimeout(() => item.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  updatePreview();
+}
+
+// ============================================================
+// TOGGLE INPUT TỰ NHẬP KHI CHỌN "KHÁC"
+// ============================================================
+function toggleCustomInput(id) {
+  const sel = document.getElementById(`sp-select-${id}`).value;
+  const wrap = document.getElementById(`sp-custom-wrap-${id}`);
+  const customInput = document.getElementById(`sp-custom-${id}`);
+
+  if (sel === '-- Khác (tự nhập) --') {
+    wrap.style.display = 'block';
+    customInput.focus();
+  } else {
+    wrap.style.display = 'none';
+    customInput.value = '';
+  }
+  updatePreview();
+}
+
+// ============================================================
+// XÓA SẢN PHẨM
+// ============================================================
+function removeProduct(id) {
+  const el = document.getElementById(`product-${id}`);
+  if (el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-10px)';
+    el.style.transition = 'all 0.2s';
+    setTimeout(() => { el.remove(); updatePreview(); }, 200);
+  }
+}
+
+// ============================================================
+// XEM TRƯỚC TIN NHẮN
+// ============================================================
+function buildMessage() {
+  const nguoiLay = document.getElementById('nguoi-lay').value.trim();
+  if (!nguoiLay) return null;
+
+  const items = [];
+  const productItems = document.querySelectorAll('.product-item');
+
+  productItems.forEach(item => {
+    const id = item.id.replace('product-', '');
+    const sel = document.getElementById(`sp-select-${id}`)?.value || '';
+    let tenSP = '';
+
+    if (sel === '-- Khác (tự nhập) --') {
+      tenSP = document.getElementById(`sp-custom-${id}`)?.value.trim() || '';
+    } else {
+      tenSP = sel;
+    }
+
+    const qty  = document.getElementById(`sp-qty-${id}`)?.value.trim() || '';
+    const unit = document.getElementById(`sp-unit-${id}`)?.value || '';
+
+    if (tenSP && qty) {
+      items.push(`${qty}${unit} ${tenSP}`);
+    }
+  });
+
+  if (items.length === 0) return null;
+
+  // Format chuẩn để AI parser nhận dạng
+  return `[XUẤT KHO] Người lấy: ${nguoiLay}. Hàng: ${items.join(', ')}`;
+}
+
+function updatePreview() {
+  const msg = buildMessage();
+  const box = document.getElementById('preview-box');
+  if (msg) {
+    box.textContent = msg;
+    box.classList.add('show');
+  } else {
+    box.classList.remove('show');
+    box.textContent = '';
+  }
+}
+
+// Lắng nghe thay đổi để cập nhật preview real-time
+document.addEventListener('input', updatePreview);
+document.addEventListener('change', updatePreview);
+
+// ============================================================
+// GỬI VÀO ZALO
+// ============================================================
+async function sendToZalo() {
+  const nguoiLay = document.getElementById('nguoi-lay').value.trim();
+  if (!nguoiLay) {
+    showToast('⚠️ Vui lòng nhập tên người lấy hàng!', 'error');
+    document.getElementById('nguoi-lay').focus();
+    return;
+  }
+
+  const msg = buildMessage();
+  if (!msg) {
+    showToast('⚠️ Vui lòng nhập ít nhất 1 sản phẩm và số lượng!', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang xử lý...';
+
+  try {
+    // BƯỚC 1: Copy tin nhắn vào clipboard
+    await navigator.clipboard.writeText(msg);
+    showToast('✅ Đã copy! Zalo đang mở... Hãy dán vào nhóm');
+
+    // BƯỚC 2: Mở Zalo app qua deep link (hoạt động trên mobile)
+    // Deep link Zalo: zalo://conversation?id=<GROUP_ID>
+    // Nếu chưa có Group ID, dùng link tổng quát để mở Zalo
+    const zaloLink = document.getElementById('zalo-link');
+    zaloLink.href = 'zalo://'; // Thay bằng zalo://conversation?id=YOUR_GROUP_ID
+    zaloLink.click();
+
+  } catch (err) {
+    // Fallback: nếu clipboard API không được phép (một số browser)
+    fallbackCopy(msg);
+    showToast('📋 Đã copy! Mở Zalo và dán vào nhóm.');
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = '🚀 Gửi vào Zalo';
+  }, 3000);
+}
+
+// Fallback copy cho browser không hỗ trợ clipboard API
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+}
+
+// ============================================================
+// TOAST NOTIFICATION
+// ============================================================
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type === 'error' ? 'error' : ''} show`;
+  setTimeout(() => toast.className = 'toast', 3500);
+}
+
+// ============================================================
+// KHỞI ĐỘNG: Thêm 1 sản phẩm mặc định
+// ============================================================
+addProduct();
+</script>
+</body>
+</html>
